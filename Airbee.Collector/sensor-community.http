@@ -1,0 +1,9 @@
+### Svi senzori u krugu od 10 km oko Osijeka
+GET https://data.sensor.community/airrohr/v1/filter/area=45.55,18.69,10
+Accept: application/json
+User-Agent: Airbee/0.1 (+https://github.com/ctrlaltdelete3/Airbee)
+
+### Jedan senzor (Osijek, SDS011)
+GET https://data.sensor.community/airrohr/v1/sensor/98054/
+Accept: application/json
+User-Agent: Airbee/0.1 (+https://github.com/ctrlaltdelete3/Airbee)

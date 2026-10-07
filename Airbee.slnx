@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Airbee.Api/Airbee.Api.csproj" Id="3ef0b374-ad72-41aa-854b-bb202a95085e" />
+  <Project Path="Airbee.Collector/Airbee.Collector.csproj" Id="5976b3f5-58e2-4652-9c17-6e1b2cb4b7b8" />
+  <Project Path="Airbee.Processing/Airbee.Processing.csproj" Id="31f4923e-00c3-439c-8e68-c4aa6df65773" />
+  <Project Path="Airbee.Shared/Airbee.Shared.csproj" Id="c9bae20b-1bbc-45fe-9437-85362a51e1dc" />
+</Solution>
