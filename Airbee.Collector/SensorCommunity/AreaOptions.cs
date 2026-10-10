@@ -4,7 +4,7 @@ namespace Airbee.Collector.SensorCommunity;
 
 public class AreaOptions
 {
-    // Nullable so a missing value fails validation instead of silently becoming 0 (a real spot in the ocean).
+    // Nullable so a missing value fails validation instead of silently becoming 0 (a real spot).
     [Required]
     [Range(-90, 90)]
     public double? Latitude { get; set; }
