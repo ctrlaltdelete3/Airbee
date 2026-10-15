@@ -14,7 +14,7 @@ namespace Airbee.Collector
                 .PostConfigure(options =>
                 {
                     // Without a trailing slash HttpClient drops the last path segment ("v1").
-                    if (options.BaseUrl is not null && !options.BaseUrl.AbsoluteUri.EndsWith('/'))
+                    if (options.BaseUrl is not null && options.BaseUrl.AbsoluteUri.EndsWith('/') == false)
                     {
                         options.BaseUrl = new Uri(options.BaseUrl.AbsoluteUri + "/");
                     }
@@ -27,7 +27,14 @@ namespace Airbee.Collector
                 var options = serviceProvider.GetRequiredService<IOptions<SensorCommunityOptions>>().Value;
                 httpClient.BaseAddress = options.BaseUrl;
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(options.UserAgent);
-            });
+            })
+            // The singleton Worker keeps this client forever, so the factory never rotates its handler.
+            // Recycle connections here instead, so DNS changes are still picked up.
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2)
+            })
+            .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
             builder.Services.AddHostedService<Worker>();
 
