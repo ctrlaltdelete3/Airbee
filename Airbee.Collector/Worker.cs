@@ -1,8 +1,9 @@
 using Airbee.Collector.SensorCommunity;
+using Airbee.Shared.Messages;
 
 namespace Airbee.Collector
 {
-    public class Worker(SensorCommunityClient client, ILogger<Worker> logger) : BackgroundService
+    public class Worker(SensorCommunityClient client, SensorCommunityMapper mapper, ILogger<Worker> logger) : BackgroundService
     {
         // The filter endpoint only returns the last 5 minutes, so this must stay below that.
         private static readonly TimeSpan PollingInterval = TimeSpan.FromMinutes(2.5);
@@ -14,7 +15,19 @@ namespace Airbee.Collector
                 try
                 {
                     var measurements = await client.GetMeasurementsAsync(stoppingToken);
-                    logger.LogInformation("Fetched {Count} measurements from Sensor.Community", measurements.Count);
+
+                    var measurementMessages = new List<MeasurementMessage>();
+
+                    foreach (var measurement in measurements)
+                    {
+                        var measurementMessage = mapper.Map(measurement);
+                        if (measurementMessage != null)
+                        {
+                            measurementMessages.Add(measurementMessage);
+                        }
+                    }
+
+                    logger.LogInformation("Fetched {Count} measurements from Sensor.Community. Mapped: {MappedCount}", measurements.Count, measurementMessages.Count);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {

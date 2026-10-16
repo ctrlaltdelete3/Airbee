@@ -22,6 +22,8 @@ namespace Airbee.Collector
                 .ValidateOnStart();
             builder.Services.AddSingleton<IValidateOptions<SensorCommunityOptions>, SensorCommunityOptionsValidator>();
 
+            builder.Services.AddSingleton<SensorCommunityMapper>();
+
             builder.Services.AddHttpClient<SensorCommunityClient>((serviceProvider, httpClient) =>
             {
                 var options = serviceProvider.GetRequiredService<IOptions<SensorCommunityOptions>>().Value;
