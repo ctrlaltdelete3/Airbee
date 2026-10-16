@@ -2,6 +2,8 @@ namespace Airbee.Collector.SensorCommunity.Dtos;
 
 public class LocationDto
 {
+    public long Id { get; set; }
+
     public string Latitude { get; set; } = string.Empty;
     public string Longitude { get; set; } = string.Empty;
 
