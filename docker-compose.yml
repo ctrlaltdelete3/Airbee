@@ -13,12 +13,16 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-management
+    # RabbitMQ stores data per node name (rabbit@<hostname>), so it must not change between containers
+    hostname: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
 
   redis:
@@ -29,3 +33,4 @@ services:
 
 volumes:
   postgres_data:
+  rabbitmq_data:

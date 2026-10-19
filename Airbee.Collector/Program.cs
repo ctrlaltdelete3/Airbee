@@ -1,4 +1,6 @@
+using Airbee.Collector.RabbitMq;
 using Airbee.Collector.SensorCommunity;
+using Airbee.Shared.RabbitMq;
 using Microsoft.Extensions.Options;
 
 namespace Airbee.Collector
@@ -23,6 +25,13 @@ namespace Airbee.Collector
             builder.Services.AddSingleton<IValidateOptions<SensorCommunityOptions>, SensorCommunityOptionsValidator>();
 
             builder.Services.AddSingleton<SensorCommunityMapper>();
+
+            builder.Services.AddOptions<RabbitMqOptions>()
+                .Bind(builder.Configuration.GetSection(RabbitMqOptions.SectionName))
+                .ValidateOnStart();
+            builder.Services.AddSingleton<IValidateOptions<RabbitMqOptions>, RabbitMqOptionsValidator>();
+
+            builder.Services.AddSingleton<MeasurementPublisher>();
 
             builder.Services.AddHttpClient<SensorCommunityClient>((serviceProvider, httpClient) =>
             {

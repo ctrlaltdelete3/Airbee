@@ -1,9 +1,11 @@
+using Airbee.Collector.RabbitMq;
 using Airbee.Collector.SensorCommunity;
 using Airbee.Shared.Messages;
 
 namespace Airbee.Collector
 {
-    public class Worker(SensorCommunityClient client, SensorCommunityMapper mapper, ILogger<Worker> logger) : BackgroundService
+    public class Worker(SensorCommunityClient client, SensorCommunityMapper mapper,
+        MeasurementPublisher publisher, ILogger<Worker> logger) : BackgroundService
     {
         // The filter endpoint only returns the last 5 minutes, so this must stay below that.
         private static readonly TimeSpan PollingInterval = TimeSpan.FromMinutes(2.5);
@@ -28,6 +30,13 @@ namespace Airbee.Collector
                     }
 
                     logger.LogInformation("Fetched {Count} measurements from Sensor.Community. Mapped: {MappedCount}", measurements.Count, measurementMessages.Count);
+
+                    foreach (var measurementMessage in measurementMessages)
+                    {
+                        await publisher.PublishAsync(measurementMessage, stoppingToken);
+                    }
+
+                    logger.LogInformation("Published {Count} measurements to RabbitMQ", measurementMessages.Count);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -37,7 +46,7 @@ namespace Airbee.Collector
                 catch (Exception ex)
                 {
                     // Log and keep going; an unhandled exception would stop the whole host.
-                    logger.LogError(ex, "Fetching measurements from Sensor.Community failed");
+                    logger.LogError(ex, "Fetching or publishing measurements failed");
                 }
 
                 await Task.Delay(PollingInterval, stoppingToken);
