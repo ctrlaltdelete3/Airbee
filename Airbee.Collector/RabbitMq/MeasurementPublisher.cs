@@ -62,12 +62,7 @@ public class MeasurementPublisher(IOptions<RabbitMqOptions> options) : IAsyncDis
             publisherConfirmationTrackingEnabled: true);
         var channel = await _connection.CreateChannelAsync(channelOptions, cancellationToken);
 
-        await channel.QueueDeclareAsync(
-            queue: QueueNames.Measurements,
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            cancellationToken: cancellationToken);
+        await MeasurementQueue.DeclareAsync(channel, cancellationToken);
 
         // Saved only after the queue exists, so we never publish to a missing queue
         _channel = channel;
