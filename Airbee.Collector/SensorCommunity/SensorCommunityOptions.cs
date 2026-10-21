@@ -14,6 +14,7 @@ public class SensorCommunityOptions
     [Required]
     public string UserAgent { get; set; } = string.Empty;
 
-    [ValidateObjectMembers]
-    public AreaOptions Area { get; set; } = new();
+    [MinLength(1)]
+    [ValidateEnumeratedItems]
+    public List<AreaOptions> Areas { get; set; } = [];
 }

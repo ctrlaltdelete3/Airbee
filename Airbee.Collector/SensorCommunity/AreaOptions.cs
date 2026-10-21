@@ -4,6 +4,10 @@ namespace Airbee.Collector.SensorCommunity;
 
 public class AreaOptions
 {
+    // City name shown on the dashboard
+    [Required]
+    public string Name { get; set; } = string.Empty;
+
     // Nullable so a missing value fails validation instead of silently becoming 0 (a real spot).
     [Required]
     [Range(-90, 90)]

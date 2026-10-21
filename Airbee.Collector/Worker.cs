@@ -1,11 +1,13 @@
 using Airbee.Collector.RabbitMq;
 using Airbee.Collector.SensorCommunity;
 using Airbee.Shared.Messages;
+using Microsoft.Extensions.Options;
 
 namespace Airbee.Collector
 {
     public class Worker(SensorCommunityClient client, SensorCommunityMapper mapper,
-        MeasurementPublisher publisher, ILogger<Worker> logger) : BackgroundService
+        MeasurementPublisher publisher, IOptions<SensorCommunityOptions> options,
+        ILogger<Worker> logger) : BackgroundService
     {
         // The filter endpoint only returns the last 5 minutes, so this must stay below that.
         private static readonly TimeSpan PollingInterval = TimeSpan.FromMinutes(2.5);
@@ -14,39 +16,44 @@ namespace Airbee.Collector
         {
             while (stoppingToken.IsCancellationRequested == false)
             {
-                try
+                foreach (var area in options.Value.Areas)
                 {
-                    var measurements = await client.GetMeasurementsAsync(stoppingToken);
-
-                    var measurementMessages = new List<MeasurementMessage>();
-
-                    foreach (var measurement in measurements)
+                    try
                     {
-                        var measurementMessage = mapper.Map(measurement);
-                        if (measurementMessage != null)
+                        var measurements = await client.GetMeasurementsAsync(area, stoppingToken);
+
+                        var measurementMessages = new List<MeasurementMessage>();
+
+                        foreach (var measurement in measurements)
                         {
-                            measurementMessages.Add(measurementMessage);
+                            var measurementMessage = mapper.Map(measurement);
+                            if (measurementMessage != null)
+                            {
+                                measurementMessages.Add(measurementMessage);
+                            }
                         }
+
+                        logger.LogInformation("{City}: fetched {Count} measurements from Sensor.Community. Mapped: {MappedCount}",
+                            area.Name, measurements.Count, measurementMessages.Count);
+
+                        foreach (var measurementMessage in measurementMessages)
+                        {
+                            await publisher.PublishAsync(measurementMessage, stoppingToken);
+                        }
+
+                        logger.LogInformation("{City}: published {Count} measurements to RabbitMQ",
+                            area.Name, measurementMessages.Count);
                     }
-
-                    logger.LogInformation("Fetched {Count} measurements from Sensor.Community. Mapped: {MappedCount}", measurements.Count, measurementMessages.Count);
-
-                    foreach (var measurementMessage in measurementMessages)
+                    catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                     {
-                        await publisher.PublishAsync(measurementMessage, stoppingToken);
+                        // Shutting down, not an error.
+                        return;
                     }
-
-                    logger.LogInformation("Published {Count} measurements to RabbitMQ", measurementMessages.Count);
-                }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-                {
-                    // Shutting down, not an error.
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    // Log and keep going; an unhandled exception would stop the whole host.
-                    logger.LogError(ex, "Fetching or publishing measurements failed");
+                    catch (Exception ex)
+                    {
+                        // Log and move on to the next city; one failing city shouldn't stop the others.
+                        logger.LogError(ex, "{City}: fetching or publishing measurements failed", area.Name);
+                    }
                 }
 
                 await Task.Delay(PollingInterval, stoppingToken);
