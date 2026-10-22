@@ -16,6 +16,9 @@ public class AirbeeDbContext(DbContextOptions<AirbeeDbContext> options) : DbCont
         {
             sensor.Property(s => s.Id).ValueGeneratedNever();
             sensor.Property(s => s.Type).HasMaxLength(50);
+            sensor.Property(s => s.City).HasMaxLength(100);
+            // The dashboard filters sensors by city
+            sensor.HasIndex(s => s.City);
         });
 
         modelBuilder.Entity<Measurement>(measurement =>

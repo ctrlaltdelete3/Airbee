@@ -6,6 +6,8 @@ namespace Airbee.Collector.Tests.SensorCommunity;
 
 public class SensorCommunityMapperTests
 {
+    private const string City = "Osijek";
+
     private readonly SensorCommunityMapper _mapper = new();
 
     // Shaped like a real SDS011 measurement from Osijek
@@ -39,11 +41,12 @@ public class SensorCommunityMapperTests
     {
         var dto = CreateValidDto();
 
-        var message = _mapper.Map(dto);
+        var message = _mapper.Map(dto, City);
 
         Assert.NotNull(message);
         Assert.Equal(98054, message.SensorId);
         Assert.Equal("SDS011", message.SensorType);
+        Assert.Equal("Osijek", message.City);
         Assert.Equal(85212, message.LocationId);
         Assert.Equal(45.56, message.Latitude);
         Assert.Equal(18.67, message.Longitude);
@@ -56,7 +59,7 @@ public class SensorCommunityMapperTests
     {
         var dto = CreateValidDto();
 
-        var message = _mapper.Map(dto);
+        var message = _mapper.Map(dto, City);
 
         Assert.NotNull(message);
         // DateTime equality ignores Kind, so it has to be checked separately
@@ -71,7 +74,7 @@ public class SensorCommunityMapperTests
         CultureInfo.CurrentCulture = new CultureInfo("hr-HR");
         try
         {
-            var message = _mapper.Map(CreateValidDto());
+            var message = _mapper.Map(CreateValidDto(), City);
 
             Assert.NotNull(message);
             Assert.Equal(12.47, message.Pm10);
@@ -88,7 +91,7 @@ public class SensorCommunityMapperTests
         var dto = CreateValidDto();
         dto.Location!.Indoor = 1;
 
-        Assert.Null(_mapper.Map(dto));
+        Assert.Null(_mapper.Map(dto, City));
     }
 
     [Theory]
@@ -106,7 +109,7 @@ public class SensorCommunityMapperTests
             dto.Location = null;
         }
 
-        Assert.Null(_mapper.Map(dto));
+        Assert.Null(_mapper.Map(dto, City));
     }
 
     [Theory]
@@ -117,7 +120,7 @@ public class SensorCommunityMapperTests
         var dto = CreateValidDto();
         dto.SensorDataValues.RemoveAll(x => x.ValueType == missingValueType);
 
-        Assert.Null(_mapper.Map(dto));
+        Assert.Null(_mapper.Map(dto, City));
     }
 
     [Fact]
@@ -131,7 +134,7 @@ public class SensorCommunityMapperTests
             new SensorDataValueDto { ValueType = "humidity", Value = "71.5" }
         ];
 
-        Assert.Null(_mapper.Map(dto));
+        Assert.Null(_mapper.Map(dto, City));
     }
 
     [Theory]
@@ -143,7 +146,7 @@ public class SensorCommunityMapperTests
         var dto = CreateValidDto();
         dto.SensorDataValues.First(x => x.ValueType == "P1").Value = invalidValue;
 
-        Assert.Null(_mapper.Map(dto));
+        Assert.Null(_mapper.Map(dto, City));
     }
 
     [Fact]
@@ -152,6 +155,6 @@ public class SensorCommunityMapperTests
         var dto = CreateValidDto();
         dto.Timestamp = "07.10.2026. 07:42:51";
 
-        Assert.Null(_mapper.Map(dto));
+        Assert.Null(_mapper.Map(dto, City));
     }
 }

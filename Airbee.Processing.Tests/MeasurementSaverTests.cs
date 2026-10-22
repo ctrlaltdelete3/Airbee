@@ -46,6 +46,7 @@ public class MeasurementSaverTests : IDisposable
         {
             SensorId = 98054,
             SensorType = "SDS011",
+            City = "Osijek",
             LocationId = 91038,
             Latitude = 45.56,
             Longitude = 18.67,
@@ -64,6 +65,7 @@ public class MeasurementSaverTests : IDisposable
         var sensor = Assert.Single(dbContext.Sensors);
         Assert.Equal(98054, sensor.Id);
         Assert.Equal("SDS011", sensor.Type);
+        Assert.Equal("Osijek", sensor.City);
 
         var measurement = Assert.Single(dbContext.Measurements);
         Assert.Equal(98054, measurement.SensorId);

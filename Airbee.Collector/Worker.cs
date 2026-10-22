@@ -26,7 +26,7 @@ namespace Airbee.Collector
 
                         foreach (var measurement in measurements)
                         {
-                            var measurementMessage = mapper.Map(measurement);
+                            var measurementMessage = mapper.Map(measurement, area.Name);
                             if (measurementMessage != null)
                             {
                                 measurementMessages.Add(measurementMessage);

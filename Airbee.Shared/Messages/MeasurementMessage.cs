@@ -6,6 +6,9 @@ public record MeasurementMessage
     public long SensorId { get; init; }
     public string SensorType { get; init; } = string.Empty;
 
+    // The configured area the Collector found this sensor in
+    public string City { get; init; } = string.Empty;
+
     public long LocationId { get; init; }
     public double Latitude { get; init; }
     public double Longitude { get; init; }

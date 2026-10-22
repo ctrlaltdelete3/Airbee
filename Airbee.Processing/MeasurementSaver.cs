@@ -27,6 +27,7 @@ namespace Airbee.Processing
                 {
                     Id = message.SensorId,
                     Type = message.SensorType,
+                    City = message.City,
                     LocationId = message.LocationId,
                     Latitude = message.Latitude,
                     Longitude = message.Longitude

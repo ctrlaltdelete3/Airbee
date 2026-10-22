@@ -17,7 +17,7 @@ public class SensorCommunityMapper
 
     // Returns null if the measurement can't be used and should be skipped
     // TODO: log why a measurement was skipped (useful for debugging)
-    public MeasurementMessage? Map(SensorCommunityMeasurementDto dto)
+    public MeasurementMessage? Map(SensorCommunityMeasurementDto dto, string city)
     {
         if (dto.Sensor == null || dto.Location == null)
         {
@@ -60,6 +60,7 @@ public class SensorCommunityMapper
         {
             SensorId = dto.Sensor.Id,
             SensorType = dto.Sensor.SensorType?.Name ?? string.Empty,
+            City = city,
             LocationId = dto.Location.Id,
             Latitude = latitude,
             Longitude = longitude,

@@ -55,6 +55,11 @@ namespace Airbee.Data.Migrations
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<double>("Latitude")
                         .HasColumnType("double precision");
 
@@ -70,6 +75,8 @@ namespace Airbee.Data.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("City");
 
                     b.ToTable("Sensors");
                 });
