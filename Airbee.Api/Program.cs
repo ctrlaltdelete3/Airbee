@@ -1,3 +1,5 @@
+using Airbee.Data.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Airbee.Api
 {
@@ -7,7 +9,10 @@ namespace Airbee.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("Airbee")
+                ?? throw new InvalidOperationException("Connection string 'Airbee' is missing.");
+
+            builder.Services.AddDbContext<AirbeeDbContext>(options => options.UseNpgsql(connectionString));
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
